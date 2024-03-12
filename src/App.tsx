@@ -15,17 +15,22 @@ const Wrapper = styled(motion.div)`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 
 const Box = styled(motion.div)`
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   background-color: rgba(255, 255, 255, 1);
   border-radius: 35px;
-  position: absolute;
-  top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   grid-template-columns: repeat(2, 1fr);
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  position: absolute;
+  top: 100px;
+  font-size: 24px;
 `;
 
 const BiggerBox = styled.div`
@@ -58,43 +63,51 @@ const svgVars = {
 };
 
 const boxVars = {
-  initial: {
-    scale: 0,
-    opacity: 0
-  },
-  visible: {
-    scale: 1,
-    opacity: 1,
-    rotateZ: 360
-  },
-  leaving: {
-    scale: 0,
+  visible: (back: boolean) => ({
+    x: back ? -500 : 500,
     opacity: 0,
-    y: 20
-  }
+    scale: 0
+  }),
+  invisible: {
+    x: 0,
+    opacity: 1,
+    scale: 1
+  },
+  exit: (back: boolean) => ({
+    x: back ? 500 : -500,
+    opacity: 0,
+    scale: 0
+  })
 };
 
 function App() {
-  const [showing, setShowing] = useState(false);
-
-  const toggleShowing = () => {
-    setShowing(!showing);
+  const [showing, setShowing] = useState(1);
+  const [back, setBack] = useState(false);
+  const nextPlease = () => {
+    setBack(false);
+    setShowing((prev) => (prev === 6 ? 1 : prev + 1));
   };
-
+  const prevPlease = () => {
+    setBack(true);
+    setShowing((prev) => (prev === 1 ? 6 : prev - 1));
+  };
   return (
     <Wrapper>
-      <button onClick={toggleShowing}>Click</button>
-      <AnimatePresence>
-        {showing ? (
-          <Box
-            variants={boxVars}
-            initial={"initial"}
-            animate={"visible"}
-            exit={"leaving"}
-            transition={{ duration: 3 }}
-          />
-        ) : null}
+      <AnimatePresence mode="wait" custom={back}>
+        <Box
+          custom={back}
+          key={showing}
+          variants={boxVars}
+          initial="visible"
+          animate="invisible"
+          exit="exit"
+          transition={{ duration: 1 }}
+        >
+          {showing}
+        </Box>
       </AnimatePresence>
+      <button onClick={nextPlease}>Next</button>
+      <button onClick={prevPlease}>Prev</button>
     </Wrapper>
   );
 }
