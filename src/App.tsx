@@ -18,7 +18,6 @@ const Wrapper = styled(motion.div)`
 `;
 
 const Box = styled(motion.div)`
-  width: 200px;
   height: 200px;
   background-color: rgba(255, 255, 255, 1);
   border-radius: 35px;
@@ -31,84 +30,51 @@ const Box = styled(motion.div)`
   font-size: 24px;
 `;
 
-const BiggerBox = styled.div`
-  width: 600px;
-  height: 600px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 35px;
+const Grid = styled.div`
+  display: grid;
+  width: 50%;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  div:first-child,
+  div:last-child {
+    grid-column: span 2;
+  }
+`;
+
+const Overlay = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-`;
-
-const Svg = styled.svg`
-  width: 300px;
-  height: 300px;
-
-  path {
-    stroke: white;
-    stroke-width: 2;
-  }
-`;
-
-const svgVars = {
-  start: { fill: "rgba(255, 255, 255, 0.0)", pathLength: 0 },
-  end: {
-    fill: "rgba(255, 255, 255, 1)",
-    pathLength: 1
-  }
-};
-
-const boxVars = {
-  visible: (back: boolean) => ({
-    x: back ? -500 : 500,
-    opacity: 0,
-    scale: 0
-  }),
-  invisible: {
-    x: 0,
-    opacity: 1,
-    scale: 1
-  },
-  exit: (back: boolean) => ({
-    x: back ? 500 : -500,
-    opacity: 0,
-    scale: 0
-  })
-};
-
-const Circle = styled(motion.div)`
-  background-color: #00a5ff;
-  height: 100px;
-  width: 100px;
-  border-radius: 50px;
 `;
 
 function App() {
-  const [clicked, setClicked] = useState(false);
-  const toggleClicked = () => setClicked(!clicked);
+  const [id, setId] = useState<null | number>(null);
 
   return (
-    <Wrapper onClick={toggleClicked}>
-      <Box
-        style={{
-          justifyContent: clicked ? "center" : "flex-start",
-          alignItems: clicked ? "center" : "flex-start"
-        }}
-      >
-        <Circle layout />
-      </Box>
-      <Box>
-        {clicked ? (
-          <Circle layoutId="circle" style={{ borderRadius: "50px" }} />
+    <Wrapper>
+      <Grid>
+        {[1, 2, 3, 4].map((i) => (
+          <Box onClick={() => setId(i)} key={i} layoutId={i + ""} />
+        ))}
+      </Grid>
+      <AnimatePresence>
+        {id ? (
+          <Overlay
+            initial={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+            animate={{ backgroundColor: `rgba(0, 0, 0, 0.5)` }}
+            exit={{ backgroundColor: "rgba(0, 0, 0, 0)" }}
+          >
+            <Box
+              layoutId={id + ""}
+              style={{ width: "400px", height: "200px" }}
+            />
+          </Overlay>
         ) : null}
-      </Box>
-      <Box>
-        {!clicked ? (
-          <Circle layoutId="circle" style={{ borderRadius: "0px" }} />
-        ) : null}
-      </Box>
+      </AnimatePresence>
     </Wrapper>
   );
 }
